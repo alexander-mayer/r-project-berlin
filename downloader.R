@@ -54,11 +54,18 @@ layers_noise <- c("b_09_01_1UGlaerm2021", #Kernindikator Lärmbelastung
 
 
 #Example WMS-Request, we try to get a PNG and probably need to georeference it again
-#url="https://gdi.berlin.de/services/wms/ua_luftschadstoffbelastung?service=WMS&version=1.3.0&request=GetMap&layers=a_pollutant_grid_avg_no2_2024&styles=&crs=EPSG:32633&bbox=369950,5799450,415850,5837300&width=500&height=500&format=image%2Fpng"
-url="https://gdi.berlin.de/services/wms/ua_luftschadstoffbelastung?service=WMS&version=1.3.0&request=GetMap&layers=a_pollutant_grid_avg_no2_2024&styles=&crs=EPSG:32633&bbox=369950,5799450,415850,5837300&width=1000&height=1000&format=image%2Fgeotiff"
-download.file(url, "data/no2.tiff", mode = "wb")
+url_png="https://gdi.berlin.de/services/wms/ua_luftschadstoffbelastung?service=WMS&version=1.3.0&request=GetMap&layers=a_pollutant_grid_avg_no2_2024&styles=&crs=EPSG:32633&bbox=369950,5799450,415850,5837300&width=500&height=500&format=image%2Fpng"
+url_tiff="https://gdi.berlin.de/services/wms/ua_luftschadstoffbelastung?service=WMS&version=1.3.0&request=GetMap&layers=a_pollutant_grid_avg_no2_2024&styles=&crs=EPSG:32633&bbox=369950,5799450,415850,5837300&width=1000&height=1000&format=image%2Fgeotiff"
+download.file(url_png, "data/no2.png", mode = "wb")
 
-# Load PNG (it has no georeference yet)
+
+
+#-----------------------------
+# Load image
+img_png <- rast("data/no2.png")
+ext(img_png) <- ext(369950, 415850, 5799450, 5837300)
+crs(img_png) <- "EPSG:32633"
+
 img_tiff <- rast("data/no2.tiff")
 
 #-----------------------------
@@ -71,3 +78,11 @@ leaflet() %>%
   setView(lng = 13.4, lat = 52.5, zoom = 11) %>%
   addTiles() %>%
   addRasterImage(img_tiff)
+
+#Try reading a value
+p <- vect(
+  cbind(405950, 5807300),
+  type = "points",
+  crs = "EPSG:32633"
+)
+extract(img_png, p)
