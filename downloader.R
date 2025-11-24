@@ -10,10 +10,7 @@ new_pkgs <- packages[!(packages %in% installed.packages()[,"Package"])]
 if(length(new_pkgs)) install.packages(new_pkgs)
 lapply(packages, library, character.only = TRUE)
 
-#sf - simple features packages for handling vector GIS data
-#httr - generic webservice package
-#tidyverse - a suite of packages for data wrangling, transformation, plotting, ...
-#ows4R - interface for OGC webservices
+#terra - raster data
 #leaflet - interactive visualisation. We use this to test view the WMS data
 
 
