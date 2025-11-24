@@ -56,9 +56,9 @@ layers_noise <- c("b_09_01_1UGlaerm2021", #Kernindikator Lärmbelastung
 #Example WMS-Request, we try to get a PNG and probably need to georeference it again
 url_png="https://gdi.berlin.de/services/wms/ua_luftschadstoffbelastung?service=WMS&version=1.3.0&request=GetMap&layers=a_pollutant_grid_avg_no2_2024&styles=&crs=EPSG:32633&bbox=369950,5799450,415850,5837300&width=500&height=500&format=image%2Fpng"
 url_tiff="https://gdi.berlin.de/services/wms/ua_luftschadstoffbelastung?service=WMS&version=1.3.0&request=GetMap&layers=a_pollutant_grid_avg_no2_2024&styles=&crs=EPSG:32633&bbox=369950,5799450,415850,5837300&width=1000&height=1000&format=image%2Fgeotiff"
-download.file(url_png, "data/no2.png", mode = "wb")
+download.file(url_png, "data/no2.png", mode = "wb") #change this as needed
 
-
+#TODO: Write code to build the request URLs
 
 #-----------------------------
 # Load image
