@@ -47,16 +47,36 @@ layers_noise <- c("b_09_01_1UGlaerm2021", #Kernindikator Lärmbelastung
 #SAVING
 #-----------------------------
 
-#WMS is online and can break, we want offline files
+#WMS variables
+wms_crs <- "EPSG:32633&"
+wms_bbox <- "bbox=369950,5799450,415850,5837300&"
+wms_width <- "width=1000&"
+wms_height <- "height=1000&"
+wms_format <- "format=image%2Ftiff"
 
+#health
+for (layer in layers_health){
+  wms_url <- sub("GetCapabilities", "GetMap&version=1.3.0", wms_health) #modify WMS URL
+  url_tiff = paste(wms_url,"&layers=",layer,"&styles=&crs=",wms_crs,wms_bbox,wms_height,wms_width,wms_format, sep="")
+  download.file(url_tiff, paste("data/1_",layer, ".tiff", sep=""), mode = "wb")
+}
 
-#Example WMS-Request, we try to get a PNG and probably need to georeference it again
-url_png="https://gdi.berlin.de/services/wms/ua_luftschadstoffbelastung?service=WMS&version=1.3.0&request=GetMap&layers=a_pollutant_grid_avg_no2_2024&styles=&crs=EPSG:32633&bbox=369950,5799450,415850,5837300&width=500&height=500&format=image%2Fpng"
-url_tiff="https://gdi.berlin.de/services/wms/ua_luftschadstoffbelastung?service=WMS&version=1.3.0&request=GetMap&layers=a_pollutant_grid_avg_no2_2024&styles=&crs=EPSG:32633&bbox=369950,5799450,415850,5837300&width=1000&height=1000&format=image%2Fgeotiff"
-download.file(url_png, "data/no2.png", mode = "wb") #change this as needed
+#air
+for (layer in layers_air){
+  wms_url <- sub("GetCapabilities", "GetMap&version=1.3.0", wms_air) #modify WMS URL
+  url_tiff = paste(wms_url,"&layers=",layer,"&styles=&crs=",wms_crs,wms_bbox,wms_height,wms_width,wms_format, sep="")
+  download.file(url_tiff, paste("data/2_",layer, ".tiff", sep=""), mode = "wb")
+}
 
-#TODO: Write code to build the request URLs
+#noise
+for (layer in layers_noise){
+  wms_url <- sub("GetCapabilities", "GetMap&version=1.3.0", wms_noise) #modify WMS URL
+  url_tiff = paste(wms_url,"&layers=",layer,"&styles=&crs=",wms_crs,wms_bbox,wms_height,wms_width,wms_format, sep="")
+  download.file(url_tiff, paste("data/3_",layer, ".tiff", sep=""), mode = "wb")
+}
 
+#-----------------------------
+#TESTING - move to a different file
 #-----------------------------
 # Load image
 img_png <- rast("data/no2.png")
@@ -64,10 +84,6 @@ ext(img_png) <- ext(369950, 415850, 5799450, 5837300)
 crs(img_png) <- "EPSG:32633"
 
 img_tiff <- rast("data/no2.tiff")
-
-#-----------------------------
-#TESTING
-#-----------------------------
 
 #temporary, to see if it works
 
