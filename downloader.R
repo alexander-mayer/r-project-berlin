@@ -1,23 +1,14 @@
-#we use this script to download our WFS data
-#possibly convert it as well?
+#we use this script to download our WMS data
 
 rm(list=ls()) #clean working environment
 
 #Install & load libraries
-#packages <- c("sf", "httr", "tidyverse", "lubridate", "ows4R", "leaflet")
-packages <- c("terra", "leaflet")
+packages <- c("terra")
 new_pkgs <- packages[!(packages %in% installed.packages()[,"Package"])]
 if(length(new_pkgs)) install.packages(new_pkgs)
 lapply(packages, library, character.only = TRUE)
 
 #terra - raster data
-#leaflet - interactive visualisation. We use this to test view the WMS data
-
-
-#https://tutorials.inbo.be/tutorials/spatial_wfs_services/
-#https://tutorials.inbo.be/tutorials/spatial_wms_services/
-#https://andyarthur.org/how-to-access-wms-servers-in-r-programming-language.html
-
 
 #-----------------------------
 #DATA
@@ -74,28 +65,3 @@ for (layer in layers_noise){
   url_tiff = paste(wms_url,"&layers=",layer,"&styles=&crs=",wms_crs,wms_bbox,wms_height,wms_width,wms_format, sep="")
   download.file(url_tiff, paste("data/3_",layer, ".tiff", sep=""), mode = "wb")
 }
-
-#-----------------------------
-#TESTING - move to a different file
-#-----------------------------
-# Load image
-img_png <- rast("data/no2.png")
-ext(img_png) <- ext(369950, 415850, 5799450, 5837300)
-crs(img_png) <- "EPSG:32633"
-
-img_tiff <- rast("data/no2.tiff")
-
-#temporary, to see if it works
-
-leaflet() %>% 
-  setView(lng = 13.4, lat = 52.5, zoom = 11) %>%
-  addTiles() %>%
-  addRasterImage(img_tiff)
-
-#Try reading a value
-p <- vect(
-  cbind(405950, 5807300),
-  type = "points",
-  crs = "EPSG:32633"
-)
-extract(img_png, p)
