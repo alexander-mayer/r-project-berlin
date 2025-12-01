@@ -1,6 +1,7 @@
 #we use this script to download our WMS data
 
 rm(list=ls()) #clean working environment
+print(getwd()) #check if WD is correctly set to source file location
 
 #Install & load libraries
 packages <- c("terra")
