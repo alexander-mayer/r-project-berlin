@@ -69,8 +69,10 @@ server <- function(input, output) {
     env_raster <- reactive({
       req(input$var_env)
       r_stack<-rast(input$var_env)
-      ext(r_stack) <- ext(369950, 415850, 5799450, 5837300)
-      crs(r_stack) <- "EPSG:32633"
+      #ext(r_stack) <- ext(369950, 415850, 5799450, 5837300)
+      #which ones are correct? They seem off
+      ext(r_stack) <- ext(370000.8125, 415786.5625, 5799520.5, 5837259.5)
+      crs(r_stack) <- "EPSG:25833"
       
       r_stack
     })
