@@ -9,7 +9,7 @@ library(raster)
 # Define UI for app that draws a histogram ----
 ui <- page_sidebar(
   # App title ----
-  title = "Hello world!",
+  title = "Hello",
   # Sidebar panel for inputs ----
   sidebar = sidebar(
     "This is a shiny applicaion",
@@ -88,3 +88,5 @@ server <- function(input, output) {
   }
   
 shinyApp(ui = ui, server = server)
+
+
