@@ -26,6 +26,7 @@ layers_air <- c("a_pollutant_grid_avg_no2_2024", #NO2 – Stickstoffdioxid in µ
                 "c_pollutant_grid_avg_pm2_5_2024") #PM2,5 – Partikel < 2,5 µm in µg/m³ 2024
 #3 - Noise Pollution
 #https://daten.berlin.de/datensaetze/umweltgerechtigkeit-2021-2022-umweltatlas-wms-87f1aaf7
+#https://www.berlin.de/umweltatlas/mensch/umweltgerechtigkeit/2022/methode/
 wms_noise <- "https://gdi.berlin.de/services/wms/ua_umweltgerechtigkeit_2021?REQUEST=GetCapabilities&SERVICE=wms"
 layers_noise <- c("b_09_01_1UGlaerm2021", #Kernindikator Lärmbelastung
                  "c_09_01_2UGluft2021", #Kernindikator Luftbelastung
