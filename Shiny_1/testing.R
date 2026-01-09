@@ -26,14 +26,29 @@ files <- c("data/1_gssa_gesix2022.tiff", #Gesundheits- und Sozialindex 2022 (GES
            "data/3_g_09_01_6UGmehrfach4_2021.tiff", #Integrierte Mehrfachbelastungskarte Umwelt
            "data/3_h_09_01_7UGmehrfach5_2021.tiff") #Integrierte Mehrfachbelastungskarte Umwelt und Soziale Benachteiligung
 
+GSSA<- "data/1_gssa_gesix2022.tiff" #Gesundheits- und Sozialindex 2022 (GESIx)
+NO2<-"data/2_a_pollutant_grid_avg_no2_2024.tiff" #NO2 – Stickstoffdioxid in µg/m³ 2024
+PM10<-"data/2_b_pollutant_grid_avg_pm10_2024.tiff" #PM10 – Partikel < 10 µm in µg/m³ 2024
+PM2.5<-"data/2_c_pollutant_grid_avg_pm2_5_2024.tiff" #PM2,5 – Partikel < 2,5 µm in µg/m³ 2024
+noise<-"data/3_b_09_01_1UGlaerm2021.tiff" #Kernindikator Lärmbelastung
+luft<-"data/3_c_09_01_2UGluft2021.tiff" #Kernindikator Luftbelastung
+gruen<-"data/3_d_09_01_3UGgruen2021.tiff" #Kernindikator Grünversorgung
+bioklim<-"data/3_e_09_01_4UGbioklima2021.tiff" #Kernindikator Thermische Belastung
+sozial<-"data/3_f_09_01_5UGsozial2021.tiff" #Kernindikator Soziale Benachteiligung
+mehrfach4<-"data/3_g_09_01_6UGmehrfach4_2021.tiff" #Integrierte Mehrfachbelastungskarte Umwelt
+mehrfach5<-"data/3_h_09_01_7UGmehrfach5_2021.tiff" #Integrierte Mehrfachbelastungskarte Umwelt und Soziale Benachteiligung
+
+all_tiffs<- c(GSSA, NO2, PM10, PM2.5, noise, luft, gruen, bioklim, sozial, mehrfach4, mehrfach5)
 # Load all TIFFs
-r_stack <- rast(files)
-ext(r_stack) <- ext(369950, 415850, 5799450, 5837300)
-crs(r_stack) <- "EPSG:32633"
+for (i in seq_along(all_tiffs)){
+  print(names(all_tiffs[i])) #<- rast(tiff)
+  #ext(names(tiff)) <- ext(369950, 415850, 5799450, 5837300)
+  #crs(names(tiff)) <- "EPSG:32633"
+}
 
 #temporary, to see if it works
 
-leaflet() %>% 
+NO2leaflet<- leaflet() %>% 
   setView(lng = 13.4, lat = 52.5, zoom = 11) %>%
   addTiles() %>%
   addRasterImage(r_stack)
