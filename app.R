@@ -8,11 +8,26 @@ library(raster)
 
 # Define UI for app that draws a histogram ----
 ui <- page_sidebar(
+ 
   # App title ----
   title = "Hello",
+  #different theme (z.B. minty, cerulean, darkly, cosmo, quartz,...)
+  theme = bslib::bs_theme(version = 5, bootswatch = "minty"),
+  
+  #Info for social index
+  tabPanel ("Info",
+    
+        sidebarPanel(
+          img(src = 'info-icon.png',
+              height = "40 px"),
+          h3("Welcome"),
+          h4("This application gives an insight into the correlation between environmental and social variables in Berlin")
+          )
+  ),
+  
   # Sidebar panel for inputs ----
   sidebar = sidebar(
-    "This is a shiny applicaion",
+    "Explore!",
     # Input: Slider for the number of bins ----
     card(
       card_header("Select environmental factor for comparison"),
@@ -36,8 +51,14 @@ ui <- page_sidebar(
         choices = list("sozial" = 1, "xx" = 2),
         selected = 1
       )
-    )
+    ),
+    
+    card(
+      card_header("Information: Die Darstellung des Gesundheits- und Sozialindex (GESIx) des Gesundheits- und Sozialstrukturatlas Berlin 2022 auf der Ebene der Planungsräume. Datengrundlage bilden 20 Indikatoren aus den Dimensionen Erwerbsleben, soziale Lage und Gesundheit. Für diese drei Dimensionen werden Subindizes berechnet, die zu einem Index - GESIx - zusammengeführt werden."),
+      )
+    
   ),
+    
   "main content",
   value_box(
   title = "Value box",
