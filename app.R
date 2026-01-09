@@ -6,9 +6,6 @@ library(leaflet)
 library(terra)
 library(raster)
 
-
-#source("testing.R")
-
 # Define UI for app that draws a histogram ----
 ui <- page_sidebar(
   # App title ----
@@ -89,8 +86,3 @@ server <- function(input, output) {
   }
   
 shinyApp(ui = ui, server = server)
-
-
-#getwd()
-#setwd("C:/Users/Rosina/1UNI/11_Semester/environmental_modelling/git/r-project-berlin")
-#runApp('Shiny_1')
