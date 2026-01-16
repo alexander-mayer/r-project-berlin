@@ -23,9 +23,9 @@ files <- c("data/1_gssa_gesix2022.tiff", #Gesundheits- und Sozialindex 2022 (GES
            "data/3_d_09_01_3UGgruen2021.tiff", #Kernindikator Grünversorgung
            "data/3_e_09_01_4UGbioklima2021.tiff", #Kernindikator Thermische Belastung
            "data/3_f_09_01_5UGsozial2021.tiff", #Kernindikator Soziale Benachteiligung
-           "data/3_g_09_01_6UGmehrfach4_2021.tiff", #Integrierte Mehrfachbelastungskarte Umwelt
-           "data/3_h_09_01_7UGmehrfach5_2021.tiff") #Integrierte Mehrfachbelastungskarte Umwelt und Soziale Benachteiligung
-
+           #"data/3_g_09_01_6UGmehrfach4_2021.tiff", #Integrierte Mehrfachbelastungskarte Umwelt
+           #"data/3_h_09_01_7UGmehrfach5_2021.tiff" #Integrierte Mehrfachbelastungskarte Umwelt und Soziale Benachteiligung
+            )
 # Load all TIFFs
 r_stack <- rast(files)
 ext(r_stack) <- ext(369950, 415850, 5799450, 5837300)
@@ -44,4 +44,4 @@ p <- vect(
   type = "points",
   crs = "EPSG:32633"
 )
-#extract(r_stack, p)
+extract(r_stack, p)
