@@ -39,4 +39,6 @@ for (layer in layers_env){
   wms_url <- sub("REQUEST=GetCapabilities", "version=2.0.0&request=GetFeature", wfs_env) #modify WfS URL
   url_gp = paste(wms_url,"&typeNames=ua__umweltgerechtigkeit_2021%3A",layer,wfs_crs,wfs_format, sep="")
   download.file(url_gp, paste("data/1_",layer, ".gpkg", sep=""), mode = "wb")
+  
+
 }
