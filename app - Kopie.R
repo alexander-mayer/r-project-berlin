@@ -20,10 +20,11 @@ ui <- page_sidebar(
         "var_env",
         label = "Select option",
         choices = list(
-          "NO2" = "data/2_a_pollutant_grid_avg_no2_2024.tiff", #NO2 – Stickstoffdioxid in µg/m³ 2024
-          "PM2.5" = "data/2_b_pollutant_grid_avg_pm10_2024.tiff", #PM10 – Partikel < 10 µm in µg/m³ 2024
-          "PM10" = "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff", #PM2,5 – Partikel < 2,5 µm in µg/m³ 2024
-          "Noise pollution" = "data/3_b_09_01_1UGlaerm2021.tiff" #Kernindikator Lärmbelastung
+          #"NO2" = "data/2_a_pollutant_grid_avg_no2_2024.tiff", #NO2 – Stickstoffdioxid in µg/m³ 2024
+          #"PM2.5" = "data/2_b_pollutant_grid_avg_pm10_2024.tiff", #PM10 – Partikel < 10 µm in µg/m³ 2024
+          #"PM10" = "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff", #PM2,5 – Partikel < 2,5 µm in µg/m³ 2024
+          #"Noise pollution" = "data/3_b_09_01_1UGlaerm2021.tiff", #Kernindikator Lärmbelastung
+          "Noise pollution_gpkg"= "data/1_b_09_01_1UGlaerm2021.gpkg"
         )
       )
     ),
@@ -68,20 +69,23 @@ server <- function(input, output) {
     
     env_raster <- reactive({
       req(input$var_env)
-      r_stack<-rast(input$var_env)
-      ext(r_stack) <- ext(369950, 415850, 5799450, 5837300)
-      crs(r_stack) <- "EPSG:32633"
+      r_stack <- st_read("data/1_b_09_01_1UGlaerm2021.gpkg")
+      r_stack <- st_transform(r_stack, 4326)
+      #r_stack<-rast(input$var_env)
+      #ext(r_stack) <- ext(369950, 415850, 5799450, 5837300)
+      #crs(r_stack) <- "EPSG:32633"
       
       r_stack
     })
     
     output$map <- renderLeaflet({
-      leaflet() %>%
+      leaflet(data=env_raster()) %>%
         setView(lng = 13.4, lat = 52.5, zoom = 11) %>%
         addTiles() %>%
-        addRasterImage(
-          raster(env_raster()),
-          opacity = 0.7)
+        addPolygons()
+        #addRasterImage(
+         # raster(env_raster()),
+          #opacity = 0.7)
     })
   }
   

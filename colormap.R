@@ -8,7 +8,7 @@ df <- data.frame(
   df2 = c(1, 3, 2, 3, 1, 2)
 )
 
-
+##evtl müssen mittel, gering o.ä. noch in num. umgewandelt werden
 # Kategorien bestimmen
 cats1 <- seq(min(df$df1), max(df$df1))
 cats2 <- seq(min(df$df2), max(df$df2))
