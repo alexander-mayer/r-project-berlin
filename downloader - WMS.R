@@ -32,8 +32,8 @@ layers_air <- c("a_pollutant_grid_avg_no2_2024", #NO2 – Stickstoffdioxid in µ
 wms_crs <- "EPSG:32633&"
 #wms_bbox <- "bbox=369950,5799450,415850,5837300&"
 wms_bbox <- "bbox=369950,415850,5799450,5837300&"
-wms_width <- "width=2000&"
-wms_height <- "height=2000&"
+wms_width <- "width=1000&"
+wms_height <- "height=1000&"
 wms_format <- "format=image%2Fgeotiff"
 
 #health

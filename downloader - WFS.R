@@ -21,9 +21,7 @@ layers_env <- c("b_09_01_1UGlaerm2021", #Kernindikator Lärmbelastung
                  "c_09_01_2UGluft2021", #Kernindikator Luftbelastung
                  "d_09_01_3UGgruen2021", #Kernindikator Grünversorung
                  "e_09_01_4UGbioklima2021", #Kernindikator Thermische Belastung
-                 "f_09_01_5UGsozial2021", #Kernindikator Soziale Benachteiligung
-                 "g_09_01_6UGmehrfach4_2021", #Integrierte Mehrfachbelastungskarte Umwelt
-                 "h_09_01_7UGmehrfach5_2021") #Integrierte Mehrfachbelastungskarte Umwelt und Soziale Benachteiligung
+                 "f_09_01_5UGsozial2021") #Kernindikator Soziale Benachteiligung
 #-----------------------------
 #SAVING
 #-----------------------------
@@ -38,7 +36,7 @@ wfs_format <- "outputFormat=geopkg"
 for (layer in layers_env){
   wms_url <- sub("REQUEST=GetCapabilities", "version=2.0.0&request=GetFeature", wfs_env) #modify WfS URL
   url_gp = paste(wms_url,"&typeNames=ua__umweltgerechtigkeit_2021%3A",layer,wfs_crs,wfs_format, sep="")
-  download.file(url_gp, paste("data/1_",layer, ".gpkg", sep=""), mode = "wb")
+  download.file(url_gp, paste("data/3_",layer, ".gpkg", sep=""), mode = "wb")
   
 
 }
