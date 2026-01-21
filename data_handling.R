@@ -16,6 +16,10 @@ gruen <- st_read("data/3_d_09_01_3UGgruen2021.gpkg")
 bio <- st_read("data/3_e_09_01_4UGbioklima2021.gpkg")
 sozial <- st_read("data/3_f_09_01_5UGsozial2021.gpkg")
 
+#All vectors are in UTM33N
+st_crs(laerm) <- "EPSG: 25833"
+target_crs <- "EPSG: 25833"
+
 #All layers have the same attributes:
 names(laerm)
 
@@ -28,7 +32,7 @@ gruen <- gruen %>% filter(unbewofl != "ja" | is.na(unbewofl))
 bio <- bio %>% filter(unbewofl != "ja" | is.na(unbewofl))
 sozial <- sozial %>% filter(unbewofl != "ja" | is.na(unbewofl))
 
-gruen %>%
+laerm %>%
   st_drop_geometry() %>%
   distinct(ekategorie)
 
@@ -36,9 +40,55 @@ gruen %>%
 
 #Clean up data
 
-#todo: Remove all entries where unbewofl = "ja"
-
 #Either normalise or get min/max values from all layers
 
+laerm$ekategorie_num <- dplyr::recode(
+  laerm$ekategorie,
+  "NA" = 0,
+  "low"   = 1,
+  "medium" = 2,
+  "high"   = 3
+)
 
-#What to do with raster files? Convert all to raster? All to vector?
+laerm_v <- vect(laerm)
+
+#Use this template for all conversions
+r_template <- rast(
+  ext(laerm_v),
+  resolution = 50,
+  crs = target_crs
+)
+
+laerm_raster <- rasterize(
+  laerm_v,
+  r_template,
+  field = "ekategorie_num"
+)
+
+writeRaster(
+  laerm_raster,
+  "data/laerm.tif",
+  overwrite = TRUE
+)
+
+
+
+#Now we load, correct and reproject our existing rasters
+no2 <- rast("data/2_a_pollutant_grid_avg_no2_2024.tiff")
+no2 <- project(
+  no2,
+  laerm_raster,
+  method = "bilinear"   # use "near" if NO2 were categorical
+)
+no2 <- crop(no2, laerm_raster)
+compareGeom(laerm_raster, no2, stopOnError = FALSE)
+
+library(terra)
+
+writeRaster(
+  no2,
+  "data/no2_2024_aligned.tif",
+  filetype = "GTiff",
+  overwrite = TRUE
+)
+
