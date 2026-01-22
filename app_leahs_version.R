@@ -83,11 +83,19 @@ ui <- page_sidebar(
     ),
     nav_panel(
       "Map",
-      value_box(
-        title = "Selected dataset",
-        value = textOutput("dataset_name"),
-        theme = "teal"
+      layout_columns(
+        col_widths = c(6,6),
+        value_box(
+          title = "Selected dataset",
+          value = textOutput("dataset_name"),
+          theme = "teal"
+        ),
+        card(
+          card_header("Color Map"),
+          card_body(imageOutput("colormap"))
+        )
       ),
+      
       card(
         card_header("Map of Berlin"),
         card_body(
@@ -149,7 +157,7 @@ server <- function(input, output, session) {
   })
 
   # -----------------------------
-  # 2.1 nav_panel INFO (Info on datasets)
+  # 2.2 nav_panel INFO (Info on datasets)
   # -----------------------------
   
   env_text <- c(
@@ -168,9 +176,11 @@ server <- function(input, output, session) {
     )
   })
   
-    
   # -----------------------------
-  # 2.2 VALUE BOX TEXT
+  # 2.3 nav_panel MAP
+  # -----------------------------  
+  # -----------------------------
+  # 2.3.1 VALUE BOX TEXT
   # -----------------------------
   output$dataset_name <- renderText({
     datasets <- c(
@@ -183,9 +193,23 @@ server <- function(input, output, session) {
   })
   
   
-
-  
   # -----------------------------
+  # 2.3.2 PLOT COLORSCALE
+  # -----------------------------
+  output$colormap <- renderImage({
+    # Einfach Pfad zu deinem PNG
+    list(
+      src = "C:/Users/enge_r0/.UNI/r-project-berlin/graphical_abstract/viridis_colormap_voll.png",
+      contentType = 'image/png',
+      width = 400,
+      height = 300,
+      alt = "Viridis colormap"
+    )
+  }, deleteFile = FALSE)   # ❌ NICHT TRUE, sonst wird die Datei gelöscht
+  
+  
+  
+   # -----------------------------
   # 2.3 INITIAL LEAFLET MAP
   # -----------------------------
   output$map <- renderLeaflet({
