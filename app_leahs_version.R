@@ -29,10 +29,10 @@ ui <- page_sidebar(
   theme = bs_theme(version = 5, bootswatch = "minty"),
   
   sidebar = sidebar(
-    h4("Explore!"),
+    h4("Select factors for comparison"),
     
     card(
-      card_header("Environmental factor"),
+      card_header("Factor 1"),
       selectInput(
         inputId = "var_env",
         label = "Select option",
@@ -46,29 +46,40 @@ ui <- page_sidebar(
     ),
     
     card(
-      card_header("Social factor"),
+      card_header("Factor 2"),
       selectInput(
         inputId = "var_soc",
         label = "Select option",
-        choices = c("GESIx" = "data/gesix_berlin.tiff")
+        choices = c("GESIx" = "data/gesix_berlin.tiff",
+                    "NO2" = "data/2_a_pollutant_grid_avg_no2_2024.tiff",
+                    "PM10" = "data/2_b_pollutant_grid_avg_pm10_2024.tiff",
+                    "PM2.5" = "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff",
+                    "Noise pollution" = "data/3_b_09_01_1UGlaerm2021.tiff"
+                    )
       )
     ),
     
-    card(
-      card_header("Information"),
-      p(
-        "The Health and Social Index (GESIx) is derived from 20 indicators ",
-        "covering employment, social status and health at the planning area level ",
-        "for Berlin (2022)."
-      )
-    )
+    #card(
+     # card_header("Information"),
+      #p(
+       # "The Health and Social Index (GESIx) is derived from 20 indicators ",
+        #"covering employment, social status and health at the planning area level ",
+        #"for Berlin (2022)."
+      #)
+    #)
   ),
   
   navset_tab(
     nav_panel(
       "Info",
-      h3("Welcome"),
-      p("This application provides insight into the relationship between environmental pollution and social indicators in Berlin.")
+      #h3("Welcome"),
+      card("This application provides insight into the relationship between environmental pollution factors and social indicators in Berlin."),
+      card(
+        card_header("Information on selected factors"),
+        card_body(
+          p(uiOutput("dataset_info"))
+        )
+      )
     ),
     nav_panel(
       "Map",
@@ -79,12 +90,24 @@ ui <- page_sidebar(
       ),
       card(
         card_header("Map of Berlin"),
-        leafletOutput("map", height = 550)
+        card_body(
+          leafletOutput("map", height = 550)
+        )
       ),
-      card(
-        card_header("Scatterplot: Environmental vs Social indicator"),
-        plotOutput("scatter", height = 400)
-      )
+      layout_columns(
+        col_widths = c(4, 4, 4),
+        plotOutput("hist_factor1"),
+        plotOutput("hist_factor2"),
+        plotOutput("scatter")
+      ),
+      
+      #card(
+       # card_header("Correlation Coefficient Map"),
+        #card_body(
+         # leafletOutput("correlation_map", height = 550)
+        #)
+    #)
+      
     )
   )
 )
@@ -124,7 +147,28 @@ server <- function(input, output, session) {
     r <- project(r, "EPSG:4326")  # Leaflet-compatible
     r
   })
+
+  # -----------------------------
+  # 2.1 nav_panel INFO (Info on datasets)
+  # -----------------------------
   
+  env_text <- c(
+    "data/2_a_pollutant_grid_avg_no2_2024.tiff"  = "Nitrogen dioxide (NO₂) concentration in µg/m³.",
+    "data/2_b_pollutant_grid_avg_pm10_2024.tiff" = "Particulate matter <10 µm (PM10).",
+    "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff" = "Fine particulate matter <2.5 µm (PM2.5).",
+    "data/3_b_09_01_1UGlaerm2021.tiff"        = "Average environmental noise exposure.",
+    "data/gesix_berlin.tiff" = "The Health and Social Index (GESIx) is derived from 20 indicators covering employment, social status and health at the planning area level for Berlin (2022)."
+  )
+  
+  
+  output$dataset_info <- renderUI({
+    tagList(
+      tags$p(env_text[input$var_env]),
+      tags$p(env_text[input$var_soc])
+    )
+  })
+  
+    
   # -----------------------------
   # 2.2 VALUE BOX TEXT
   # -----------------------------
@@ -137,6 +181,9 @@ server <- function(input, output, session) {
     )
     names(datasets[datasets == input$var_env])
   })
+  
+  
+
   
   # -----------------------------
   # 2.3 INITIAL LEAFLET MAP
