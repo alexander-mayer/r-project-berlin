@@ -109,12 +109,12 @@ ui <- page_sidebar(
         plotOutput("scatter")
       ),
       
-      #card(
-       # card_header("Correlation Coefficient Map"),
-        #card_body(
-         # leafletOutput("correlation_map", height = 550)
-        #)
-    #)
+      card(
+        card_header("Correlation Coefficient Map"),
+        card_body(
+          leafletOutput("correlation_map", height = 550)
+        )
+    )
       
     )
   )
