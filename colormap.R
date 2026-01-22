@@ -1,44 +1,115 @@
 library(ggplot2)
 library(viridis)
+library(terra)
 
-#filter categories + lenght for 2D-Colormatrix
-cat1 <- unique(df1$yourColumn)
-cat2 <- unique(df2$yourColumn) 
-
-n1 <- length(cat1)
-n2 <- length(cat2)
-
-vir_cols <- viridis(n1 * n2)
-
-# create 2D-Color-Matrix
-color_matrix <- matrix(
-  vir_cols,
-  nrow = n1,
-  ncol = n2,
-  byrow = TRUE
-)
-
-rownames(color_matrix) <- cat1
-colnames(color_matrix) <- cat2
-
-
-cm_df <- expand.grid(
-  df1 = cats1,
-  df2 = cats2
-)
-
-cm_df$color <- as.vector(color_matrix)
-
-color_matrix <- ggplot(cm_df, aes(df1, df2, fill = color)) +
-  geom_tile() +
-  scale_fill_identity() +
-  labs(
-    x = paste0(name(var_env)),
-    y = paste0 (name(var_soc))
+create_colormap<-function (r1, r2){
+    #filter categories + lenght for 2D-Colormatrix
+  r1_min <- global(r1, "min", na.rm = TRUE)[1,1]
+  r1_max <- global(r1, "max", na.rm = TRUE)[1,1]
+  
+  cat1 <- seq(r1_min, r1_max)
+  n1 <- length(cat1)
+  
+  
+  r2_min <- global(r2, "min", na.rm = TRUE)[1,1]
+  r2_max <- global(r2, "max", na.rm = TRUE)[1,1]
+  
+  cat2 <- seq(r2_min, r2_max)
+  n2 <- length(cat2)
+  
+  vir_cols <- viridis(n1 * n2)
+  
+  # create 2D-Color-Matrix
+  color_matrix <- matrix(
+    vir_cols,
+    nrow = n1,
+    ncol = n2,
+    byrow = TRUE
   )
-theme_minimal()
+  
+  rownames(color_matrix) <- cat1
+  colnames(color_matrix) <- cat2
+  
+  
+  cm_df <- expand.grid(
+    df1 = cat1,
+    df2 = cat2
+  )
+  
+  cm_df$color <- as.vector(color_matrix)
+  
+  color_scale_2D<-ggplot(cm_df, aes(df1, df2, fill = color)) +
+    geom_tile() +
+    scale_fill_identity() +
+    labs(
+      x = r1,
+      y = r2
+    )+
+    theme_minimal()
+}
 
 
+combined_id_raster<- function (r1, r2){
+  #filter categories + lenght for 2D-Colormatrix
+  r1_min <- global(r1, "min", na.rm = TRUE)[1,1]
+  r1_max <- global(r1, "max", na.rm = TRUE)[1,1]
+  
+  cat1 <- seq(r1_min, r1_max)
+  n1 <- length(cat1)
+  
+  
+  r2_min <- global(r2, "min", na.rm = TRUE)[1,1]
+  r2_max <- global(r2, "max", na.rm = TRUE)[1,1]
+  
+  cat2 <- seq(r2_min, r2_max)
+  n2 <- length(cat2)
+  
+  vir_cols <- viridis(n1 * n2)
+  
+  # create 2D-Color-Matrix
+  color_matrix <- matrix(
+    vir_cols,
+    nrow = n1,
+    ncol = n2,
+    byrow = TRUE
+  )
+  
+  rownames(color_matrix) <- cat1
+  colnames(color_matrix) <- cat2
+  
+  
+  cm_df <- expand.grid(
+    df1 = cat1,
+    df2 = cat2
+  )
+  
+  cm_df$color <- as.vector(color_matrix)
+  
+  r1 <- round(r1)
+  r2 <- round(r2)
+  
+  r1 <- as.int(r1)
+  r2 <- as.int(r2)
+  
+  
+  combined_raster <- terra::app(
+    c(r1, r2),
+    fun = function(x) {
+      if (any(is.na(x))) return(NA_integer_)
+      (x[1] - 1) * n2 + x[2]
+    }
+  )
+}
+  
+  #cols <- as.vector(color_matrix)
+  
+  #final_map <- plot(
+   # combined_id_raster,
+    #col = cols,
+    #axes = FALSE,
+    #main = "Bivariates Raster (2D-Colormap)"
+  #)
+#}
 
 
 

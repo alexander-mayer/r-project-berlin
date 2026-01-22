@@ -37,10 +37,10 @@ ui <- page_sidebar(
         inputId = "var_env",
         label = "Select option",
         choices = c(
-          "NO2" = "data/2_a_pollutant_grid_avg_no2_2024.tiff",
+          "NO2" = "data/no2_2024_aligned.tif",
           "PM10" = "data/2_b_pollutant_grid_avg_pm10_2024.tiff",
           "PM2.5" = "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff",
-          "Noise pollution" = "data/3_b_09_01_1UGlaerm2021.tiff"
+          "Noise pollution" = "data/laerm.tif"
         )
       )
     ),
@@ -51,10 +51,10 @@ ui <- page_sidebar(
         inputId = "var_soc",
         label = "Select option",
         choices = c("GESIx" = "data/gesix_berlin.tiff",
-                    "NO2" = "data/2_a_pollutant_grid_avg_no2_2024.tiff",
+                    "NO2" = "data/no2_2024_aligned.tif",
                     "PM10" = "data/2_b_pollutant_grid_avg_pm10_2024.tiff",
                     "PM2.5" = "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff",
-                    "Noise pollution" = "data/3_b_09_01_1UGlaerm2021.tiff"
+                    "Noise pollution" = "data/laerm.tif"
                     )
       )
     ),
@@ -92,7 +92,7 @@ ui <- page_sidebar(
         ),
         card(
           card_header("Color Map"),
-          card_body(imageOutput("colormap"))
+          card_body(plotOutput("colormap"))
         )
       ),
       
@@ -161,10 +161,10 @@ server <- function(input, output, session) {
   # -----------------------------
   
   env_text <- c(
-    "data/2_a_pollutant_grid_avg_no2_2024.tiff"  = "Nitrogen dioxide (NO₂) concentration in µg/m³.",
+    "data/no2_2024_aligned.tif"  = "Nitrogen dioxide (NO₂) concentration in µg/m³.",
     "data/2_b_pollutant_grid_avg_pm10_2024.tiff" = "Particulate matter <10 µm (PM10).",
     "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff" = "Fine particulate matter <2.5 µm (PM2.5).",
-    "data/3_b_09_01_1UGlaerm2021.tiff"        = "Average environmental noise exposure.",
+    "data/laerm.tif"        = "Average environmental noise exposure.",
     "data/gesix_berlin.tiff" = "The Health and Social Index (GESIx) is derived from 20 indicators covering employment, social status and health at the planning area level for Berlin (2022)."
   )
   
@@ -184,10 +184,10 @@ server <- function(input, output, session) {
   # -----------------------------
   output$dataset_name <- renderText({
     datasets <- c(
-      "NO2 (µg/m³, 2024)" = "data/2_a_pollutant_grid_avg_no2_2024.tiff",
-      "PM10 (µg/m³, 2024)" = "data/2_b_pollutant_grid_avg_pm10_2024.tiff",
-      "PM2.5 (µg/m³, 2024)" = "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff",
-      "Noise pollution (2021)" = "data/3_b_09_01_1UGlaerm2021.tiff"
+      "data/no2_2024_aligned.tif" = "NO2 (µg/m³, 2024)",
+      "data/2_b_pollutant_grid_avg_pm10_2024.tiff" = "PM10 (µg/m³, 2024)",
+      "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff" = "PM2.5 (µg/m³, 2024)",
+      "data/laerm.tif" = "Noise pollution (2021)"
     )
     names(datasets[datasets == input$var_env])
   })
@@ -196,26 +196,31 @@ server <- function(input, output, session) {
   # -----------------------------
   # 2.3.2 PLOT COLORSCALE
   # -----------------------------
-  output$colormap <- renderImage({
-    # Einfach Pfad zu deinem PNG
-    list(
-      src = "C:/Users/enge_r0/.UNI/r-project-berlin/graphical_abstract/viridis_colormap_voll.png",
-      contentType = 'image/png',
-      width = 400,
-      height = 300,
-      alt = "Viridis colormap"
-    )
-  }, deleteFile = FALSE)   # ❌ NICHT TRUE, sonst wird die Datei gelöscht
+  source("colormap.R")
   
+  output$colormap <- renderPlot({
+    r1 <- rast(input$var_env)
+    r2 <- rast(input$var_soc)
+    
+    # Plot erzeugen
+    p <- create_colormap(r1, r2)
+    print(p) 
+  })
   
   
    # -----------------------------
   # 2.3 INITIAL LEAFLET MAP
   # -----------------------------
   output$map <- renderLeaflet({
+    r1 <- rast(input$var_env)
+    r2 <- rast(input$var_soc)
+    
     leaflet() %>%
+      setView(lng = 13.4, lat = 52.52, zoom = 11)%>%
       addTiles() %>%
-      setView(lng = 13.4, lat = 52.52, zoom = 11)
+      addRasterImage(
+        raster(combined_id_raster(r1,r2)),
+        opacity = 0.7)
   })
   
   # -----------------------------
