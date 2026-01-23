@@ -23,18 +23,27 @@ library(ggplot2)
 
 #variables
 
-bio_clim<-"R_bio.tif"
-gruen<-"R_gruen.tif"
-GESi<-"R_gssa.tif"
-laerm<-"R_laerm.tif"
-luft<-"R_luft.tif"
-NO2<- "R_NO2.tif"
-PM2_5<- "R_PM2_5.tif"
-PM10<- "R_PM10.tif"
-soz_benachteiligung<-"R_sozial.tif"
+ids <- c("NO2", "PM10", "PM2_5", "laerm", "gruen", "soz_benachteiligung", "GESi")
 
+raster_files <- c(
+  NO2 = "data/R_NO2.tif",
+  PM10 = "data/R_PM10.tif",
+  PM2_5 = "data/R_PM2_5.tif",
+  laerm = "data/R_laerm.tif",
+  gruen = "data/R_gruen.tif",
+  soz_benachteiligung = "data/R_sozial.tif",
+  GESi = "data/R_gssa.tif"
+)
 
-
+lab_names = c(
+  gruen = "Green spaces",
+  GESi = "GESi",
+  laerm = "Noise exposure.",
+  NO2 = "NO₂",
+  PM2_5 = "PM2.5",
+  PM10 = "PM10",
+  soz_benachteiligung = "Social disadvantage"
+)
 
 #############################
 # 1. USER INTERFACE
@@ -52,25 +61,16 @@ ui <- page_sidebar(
       selectInput(
         inputId = "var_env",
         label = "Select option",
-        choices = c(
-          "NO₂" =NO2,
-          "PM10" = PM10,
-          "PM2.5" = PM2_5,
-          "Noise pollution" = laerm
-        )
+        choices = setNames(ids, lab_names[ids])
       )
     ),
-    
+
     card(
       card_header("Factor 2"),
       selectInput(
         inputId = "var_soc",
         label = "Select option",
-        choices = c(
-          "NO₂" =NO2,
-          "PM10" = PM10,
-          "PM2.5" = PM2_5,
-          "Noise pollution" = laerm
+        choices = setNames(ids, lab_names[ids])
       )
     ),
     
@@ -144,15 +144,18 @@ ui <- page_sidebar(
 
 server <- function(input, output, session) {
   
+  
   # -----------------------------
   # 2.1 REACTIVE RASTER LOADING
   # -----------------------------
   # Environmental raster
   env_raster <- reactive({
-    req(input$var_env)
-    validate(need(file.exists(input$var_env), "Raster file not found."))
+    #req(input$var_env)
+    #validate(need(file.exists(input$var_env), "Raster file not found."))
     
-    r <- rast(input$var_env)
+    
+    
+    r <- rast(raster_files[input$var_env])
     
     # Set CRS if not available
     if (is.na(crs(r))) crs(r) <- "EPSG:25833"
@@ -165,25 +168,23 @@ server <- function(input, output, session) {
   
   # Social raster
   soc_raster <- reactive({
-    req(input$var_soc)
-    validate(need(file.exists(input$var_soc), "Raster file not found."))
-    
-    r <- rast(input$var_soc)
+    r <- rast(raster_files[input$var_soc])
     if (is.na(crs(r))) crs(r) <- "EPSG:25833"
-    r <- project(r, "EPSG:4326")  # Leaflet-compatible
-    r
+    r_proj <- project(r, "EPSG:4326")  # Leaflet-compatible
+    r_proj
   })
 
   # -----------------------------
   # 2.2 nav_panel INFO (Info on datasets)
   # -----------------------------
-  
   env_text <- c(
-    "data/no2_2024_aligned.tif"  = "Nitrogen dioxide (NO₂) concentration in µg/m³.",
-    "data/2_b_pollutant_grid_avg_pm10_2024.tiff" = "Particulate matter <10 µm (PM10).",
-    "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff" = "Fine particulate matter <2.5 µm (PM2.5).",
-    "data/laerm.tif"        = "Average environmental noise exposure.",
-    "data/gesix_berlin.tiff" = "The Health and Social Index (GESIx) is derived from 20 indicators covering employment, social status and health at the planning area level for Berlin (2022)."
+    gruen = "Green spaces: amount of greenspaces in %??",
+    GESi = "GESI: The Health and Social Index (GESIx) is derived from 20 indicators covering employment, social status and health at the planning area level for Berlin (2022).",
+    laerm = "Noise pollution: Average environmental noise exposure.",
+    NO2 = "Nitrogen dioxide (NO₂): concentration in µg/m³.",
+    PM2_5 = "Fine particulate matter <2.5 µm (PM2.5): ... ",
+    PM10 = "Particulate matter <10 µm (PM10): ...",
+    soz_benachteiligung = "Social disadvantage: measured by the factors..."
   )
   
   
@@ -202,11 +203,11 @@ server <- function(input, output, session) {
   # 2.3.1 INITIAL LEAFLET MAP
   # -----------------------------
   output$map <- renderLeaflet({
-    r1 <- rast(input$var_env)
-    r2 <- rast(input$var_soc)
+    r1 <- rast(raster_files[input$var_env])
+    r2 <- rast(raster_files[input$var_soc])
     
     leaflet() %>%
-      setView(lng = 13.4, lat = 52.52, zoom = 11)%>%
+      setView(lng = 13.4, lat = 52.52, zoom = 10.4)%>%
       addTiles() %>%
       addRasterImage(
         raster(combined_id_raster(r1,r2)),
@@ -220,11 +221,13 @@ server <- function(input, output, session) {
   # -----------------------------
   
   value_box_text <- c(
-    "data/no2_2024_aligned.tif"  = "Nitrogen dioxide (NO₂) concentration in µg/m³.",
-    "data/2_b_pollutant_grid_avg_pm10_2024.tiff" = "Particulate matter <10 µm (PM10).",
-    "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff" = "Fine particulate matter <2.5 µm (PM2.5).",
-    "data/laerm.tif"        = "Average environmental noise exposure.",
-    "data/gesix_berlin.tiff" = "(GESIx)"
+    gruen = "green spaces",
+    GESi = "GESi",
+    laerm = "Average environmental noise exposure.",
+    NO2 = "NO2",
+    PM2_5 = "PM2.5",
+    PM10 = "PM10",
+    soz_benachteiligung = "social disadvantage measured by the factors..."
   )
   
   
@@ -241,16 +244,9 @@ server <- function(input, output, session) {
   # -----------------------------
   source("colormap.R")
   
-  lab_names = c(
-    "data/no2_2024_aligned.tif"= "NO₂",
-    "data/2_b_pollutant_grid_avg_pm10_2024.tiff"= "PM10",
-    "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff"="PM2.5",
-    "data/laerm.tif"= "Noise pollution"
-  )
-  
   output$colormap <- renderPlot({
-    r1 <- rast(input$var_env)
-    r2 <- rast(input$var_soc)
+    r1 <- rast(raster_files[input$var_env])
+    r2 <- rast(raster_files[input$var_soc])
     
     # Plot erzeugen
     p <- create_colormap(r1, r2)
@@ -281,25 +277,25 @@ server <- function(input, output, session) {
   # -----------------------------
   # 2.4 REACTIVE RASTER OVERLAY
   # -----------------------------
-  observeEvent(env_raster(), {
+ #observeEvent(env_raster(), {
     
     # Color scale automatically based on raster values
-    pal <- colorNumeric("viridis", values(env_raster()), na.color = "transparent")
-    
-    leafletProxy("map") %>%
-      clearImages() %>%
-      addRasterImage(
-        env_raster(),
-        colors = pal,
-        opacity = 0.7
-      ) %>%
-      addLegend(
-        pal = pal,
-        values = values(env_raster()),
-        title = "Raster values",
-        position = "bottomright"
-      )
-  })
+  #  pal <- colorNumeric("viridis", values(env_raster()), na.color = "transparent")
+   # 
+    #leafletProxy("map") %>%
+     # clearImages() %>%
+      #addRasterImage(
+       # env_raster(),
+        #colors = pal,
+        #opacity = 0.7
+      #) %>%
+      #addLegend(
+      #  pal = pal,
+       # values = values(env_raster()),
+        #title = "Raster values",
+        #position = "bottomright"
+      #)
+  #})
   
   # -----------------------------
   # 2.6 SCATTERPLOT: Environmental vs Social
