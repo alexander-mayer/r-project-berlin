@@ -14,8 +14,7 @@ lapply(packages, library, character.only = TRUE)
 #-----------------------------
 #DATA
 #-----------------------------
-#1 - Health and Social Factors
-#https://daten.berlin.de/datensaetze/gesundheits-und-sozialstrukturatlas-gesundheits-und-sozialindex-2022-gesix-wms-44ab83fa
+
 wms_health <- "https://gdi.berlin.de/services/wms/gssa_gesix2022?REQUEST=GetCapabilities&SERVICE=wms"
 layers_health <- c("gssa_gesix2022") #Gesundheits- und Sozialindex 2022 (GESIx)
 #2 - Air Pollution

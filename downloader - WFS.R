@@ -22,6 +22,10 @@ layers_env <- c("b_09_01_1UGlaerm2021", #Kernindikator Lärmbelastung
                  "d_09_01_3UGgruen2021", #Kernindikator Grünversorung
                  "e_09_01_4UGbioklima2021", #Kernindikator Thermische Belastung
                  "f_09_01_5UGsozial2021") #Kernindikator Soziale Benachteiligung
+
+#Health and Social Factors
+#https://daten.berlin.de/datensaetze/gesundheits-und-sozialstrukturatlas-gesundheits-und-sozialindex-2022-gesix-wms-44ab83fa
+wfs_gssa <- "https://gdi.berlin.de/services/wfs/gssa_gesix2022?REQUEST=GetCapabilities&SERVICE=wfs"
 #-----------------------------
 #SAVING
 #-----------------------------
@@ -37,6 +41,8 @@ for (layer in layers_env){
   wms_url <- sub("REQUEST=GetCapabilities", "version=2.0.0&request=GetFeature", wfs_env) #modify WfS URL
   url_gp = paste(wms_url,"&typeNames=ua__umweltgerechtigkeit_2021%3A",layer,wfs_crs,wfs_format, sep="")
   download.file(url_gp, paste("data/3_",layer, ".gpkg", sep=""), mode = "wb")
-  
-
 }
+
+wms_url <- sub("REQUEST=GetCapabilities", "version=2.0.0&request=GetFeature", wfs_gssa) #modify WfS URL
+url_gp = paste(wms_url, "&typeNames=gssa_gesix2022%3Agssa_gesix2022", wfs_crs,wfs_format, sep="")
+download.file(url_gp, paste("data/1_gssa.gpkg"), mode = "wb")
