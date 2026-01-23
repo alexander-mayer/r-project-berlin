@@ -65,6 +65,11 @@ laerm_raster <- rasterize(
   field = "ekategorie_num"
 )
 
+levels(laerm_raster) <- data.frame(
+  value = c(1, 2, 3),
+  label = c("low", "medium", "high")
+)
+
 writeRaster(
   laerm_raster,
   "data/laerm.tif",
