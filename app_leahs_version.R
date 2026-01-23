@@ -38,7 +38,7 @@ raster_files <- c(
 lab_names = c(
   gruen = "Green spaces",
   GESi = "GESi",
-  laerm = "Noise exposure.",
+  laerm = "Noise exposure",
   NO2 = "NO₂",
   PM2_5 = "PM2.5",
   PM10 = "PM10",
@@ -109,31 +109,26 @@ ui <- page_sidebar(
       layout_columns(
         col_widths = c(3,9),
         value_box(
-          title = "Selected datasets:",
-          value = p(uiOutput("dataset_name")),
+          title = "Spearman correlation coefficient:",
+          value = tagList(
+            uiOutput("spearman_correlation")
+            #uiOutput("dataset_name")
+          ),
           theme = "teal"
         ),
+        
         card(
-          card_header("Color Map"),
+          card_header("Colorscale"),
           card_body(plotOutput("colormap"))
         )
       ),
       
       
       layout_columns(
-        col_widths = c(4, 4, 4),
-        plotOutput("hist_factor1"),
+        col_widths = c(6,6),
         plotOutput("hist_factor2"),
-        plotOutput("scatter")
-      ),
-      
-      card(
-        card_header("Correlation Coefficient Map"),
-        card_body(
-          leafletOutput("correlation_map", height = 550)
-        )
-    )
-      
+        plotOutput("hist_factor1")
+      )
     )
   )
 )
@@ -223,20 +218,38 @@ server <- function(input, output, session) {
   value_box_text <- c(
     gruen = "green spaces",
     GESi = "GESi",
-    laerm = "Average environmental noise exposure.",
-    NO2 = "NO2",
+    laerm = "Noise exposure.",
+    NO2 = "NO₂",
     PM2_5 = "PM2.5",
     PM10 = "PM10",
     soz_benachteiligung = "social disadvantage measured by the factors..."
   )
   
-  
-  output$dataset_name <- renderUI({
-    tagList(
-      tags$p(value_box_text[input$var_env]),
-      tags$p(value_box_text[input$var_soc])
-    )
+  output$spearman_correlation <- renderUI({
+    r1 <- rast(raster_files[input$var_env])
+    r2 <- rast(raster_files[input$var_soc])
+    
+    
+    # Extract values and use only cells that are not NA in both rasters
+    env_vals <- values(r1)
+    soc_vals <- values(r2)
+    
+    valid <- !is.na(env_vals) & !is.na(soc_vals)
+    env_vals <- env_vals[valid]
+    soc_vals <- soc_vals[valid]
+    
+    
+    cor<- round(cor(env_vals, soc_vals, method = "spearman"),2)
+    
+    
   })
+  
+ # output$dataset_name <- renderUI({
+  #  tagList(
+   #   tags$p(value_box_text[input$var_env]),
+    #  tags$p(value_box_text[input$var_soc])
+    #)
+  #})
   
   
   # -----------------------------
@@ -271,6 +284,34 @@ server <- function(input, output, session) {
     print(plot) 
   })
   
+  # -----------------------------
+  # 2.3.4 frequency plots
+  # -----------------------------
+  
+  output$hist_factor1 <- renderPlot({
+    r1 <- rast(raster_files[input$var_env])
+    f<-freq(r1)
+    barplot(
+      f$count,
+      names.arg = f$value,
+      xlab = "Category",
+      ylab = "Frequency",
+      main = lab_names[input$var_env]
+    )
+  })
+  
+  
+  output$hist_factor2 <- renderPlot({
+    r1 <- rast(raster_files[input$var_soc])
+    f<-freq(r1)
+    barplot(
+      f$count,
+      names.arg = f$value,
+      xlab = "Category",
+      ylab = "Frequency",
+      main = lab_names[input$var_soc]
+    )
+  })
   
 
   
@@ -296,33 +337,6 @@ server <- function(input, output, session) {
         #position = "bottomright"
       #)
   #})
-  
-  # -----------------------------
-  # 2.6 SCATTERPLOT: Environmental vs Social
-  # -----------------------------
-  output$scatter <- renderPlot({
-    req(env_raster(), soc_raster())
-    
-    # Extract values and use only cells that are not NA in both rasters
-    env_vals <- values(env_raster())
-    soc_vals <- values(soc_raster())
-    
-    valid <- !is.na(env_vals) & !is.na(soc_vals)
-    env_vals <- env_vals[valid]
-    soc_vals <- soc_vals[valid]
-    
-    # Scatterplot
-    df <- data.frame(Environmental = env_vals, Social = soc_vals)
-    ggplot(df, aes(x = Environmental, y = Social)) +
-      geom_point(alpha = 0.5, color = "blue") +
-      geom_smooth(method = "lm", col = "red") +
-      labs(
-        x = "Environmental indicator",
-        y = "Social indicator",
-        title = "Relation between environmental and social indicator"
-      ) +
-      theme_minimal()
-  })
   
 }
 

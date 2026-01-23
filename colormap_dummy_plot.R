@@ -10,11 +10,34 @@ df <- data.frame(
 
 #________________________________
 #Test cats
-#no2<- "data/no2_2024_aligned.tif"
-#learm<-"data/laerm.tif"
+no2<- "data/no2_2024_aligned.tif"
+learm<-"data/laerm.tif"
 
-#r1 <- rast(no2)
-#r2 <- rast(learm)
+r1 <- rast(no2)
+r2 <- rast(learm)
+
+hist(r2)
+freq(r2)
+
+f <- freq(r2)
+barplot(
+  f$count,
+  names.arg = f$value,
+  xlab = "Kategorie",
+  ylab = "Anzahl Zellen",
+  main = "Kategorien-Histogramm"
+)
+
+env_vals <- values(r1)
+soc_vals <- values(r2)
+
+valid <- !is.na(env_vals) & !is.na(soc_vals)
+env_vals <- env_vals[valid]
+soc_vals <- soc_vals[valid]
+
+cor1<-cor(env_vals,soc_vals, method = "kendall")
+
+cor.test(env_vals,soc_vals, method = "spearman")
 #_______________________________
 
 ##evtl müssen mittel, gering o.ä. noch in num. umgewandelt werden
