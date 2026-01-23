@@ -86,8 +86,8 @@ ui <- page_sidebar(
       layout_columns(
         col_widths = c(6,6),
         value_box(
-          title = "Selected dataset",
-          value = textOutput("dataset_name"),
+          title = "Selected datasets:",
+          value = p(uiOutput("dataset_name")),
           theme = "teal"
         ),
         card(
@@ -182,14 +182,21 @@ server <- function(input, output, session) {
   # -----------------------------
   # 2.3.1 VALUE BOX TEXT
   # -----------------------------
-  output$dataset_name <- renderText({
-    datasets <- c(
-      "data/no2_2024_aligned.tif" = "NO2 (µg/m³, 2024)",
-      "data/2_b_pollutant_grid_avg_pm10_2024.tiff" = "PM10 (µg/m³, 2024)",
-      "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff" = "PM2.5 (µg/m³, 2024)",
-      "data/laerm.tif" = "Noise pollution (2021)"
+  
+  value_box_text <- c(
+    "data/no2_2024_aligned.tif"  = "Nitrogen dioxide (NO₂) concentration in µg/m³.",
+    "data/2_b_pollutant_grid_avg_pm10_2024.tiff" = "Particulate matter <10 µm (PM10).",
+    "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff" = "Fine particulate matter <2.5 µm (PM2.5).",
+    "data/laerm.tif"        = "Average environmental noise exposure.",
+    "data/gesix_berlin.tiff" = "(GESIx)"
+  )
+  
+  
+  output$dataset_name <- renderUI({
+    tagList(
+      tags$p(value_box_text[input$var_env]),
+      tags$p(value_box_text[input$var_soc])
     )
-    names(datasets[datasets == input$var_env])
   })
   
   
