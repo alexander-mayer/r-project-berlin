@@ -20,6 +20,22 @@ library(leaflet)
 library(terra)
 library(raster)
 library(ggplot2)
+
+#variables
+
+bio_clim<-"R_bio.tif"
+gruen<-"R_gruen.tif"
+GESi<-"R_gssa.tif"
+laerm<-"R_laerm.tif"
+luft<-"R_luft.tif"
+NO2<- "R_NO2.tif"
+PM2_5<- "R_PM2_5.tif"
+PM10<- "R_PM10.tif"
+soz_benachteiligung<-"R_sozial.tif"
+
+
+
+
 #############################
 # 1. USER INTERFACE
 #############################
@@ -37,10 +53,10 @@ ui <- page_sidebar(
         inputId = "var_env",
         label = "Select option",
         choices = c(
-          "NO₂" = "data/no2_2024_aligned.tif",
-          "PM10" = "data/2_b_pollutant_grid_avg_pm10_2024.tiff",
-          "PM2.5" = "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff",
-          "Noise pollution" = "data/laerm.tif"
+          "NO₂" =NO2,
+          "PM10" = PM10,
+          "PM2.5" = PM2_5,
+          "Noise pollution" = laerm
         )
       )
     ),
@@ -50,12 +66,11 @@ ui <- page_sidebar(
       selectInput(
         inputId = "var_soc",
         label = "Select option",
-        choices = c("GESIx" = "data/gesix_berlin.tiff",
-                    "NO₂" = "data/no2_2024_aligned.tif",
-                    "PM10" = "data/2_b_pollutant_grid_avg_pm10_2024.tiff",
-                    "PM2.5" = "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff",
-                    "Noise pollution" = "data/laerm.tif"
-                    )
+        choices = c(
+          "NO₂" =NO2,
+          "PM10" = PM10,
+          "PM2.5" = PM2_5,
+          "Noise pollution" = laerm
       )
     ),
     
