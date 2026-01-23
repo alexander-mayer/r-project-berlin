@@ -37,7 +37,7 @@ ui <- page_sidebar(
         inputId = "var_env",
         label = "Select option",
         choices = c(
-          "NO2" = "data/no2_2024_aligned.tif",
+          "NO₂" = "data/no2_2024_aligned.tif",
           "PM10" = "data/2_b_pollutant_grid_avg_pm10_2024.tiff",
           "PM2.5" = "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff",
           "Noise pollution" = "data/laerm.tif"
@@ -51,7 +51,7 @@ ui <- page_sidebar(
         inputId = "var_soc",
         label = "Select option",
         choices = c("GESIx" = "data/gesix_berlin.tiff",
-                    "NO2" = "data/no2_2024_aligned.tif",
+                    "NO₂" = "data/no2_2024_aligned.tif",
                     "PM10" = "data/2_b_pollutant_grid_avg_pm10_2024.tiff",
                     "PM2.5" = "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff",
                     "Noise pollution" = "data/laerm.tif"
@@ -83,8 +83,16 @@ ui <- page_sidebar(
     ),
     nav_panel(
       "Map",
+      
+      card(
+        card_header("Map of Berlin"),
+        card_body(
+          leafletOutput("map", height = 550)
+        )
+      ),
+      
       layout_columns(
-        col_widths = c(6,6),
+        col_widths = c(3,9),
         value_box(
           title = "Selected datasets:",
           value = p(uiOutput("dataset_name")),
@@ -96,12 +104,7 @@ ui <- page_sidebar(
         )
       ),
       
-      card(
-        card_header("Map of Berlin"),
-        card_body(
-          leafletOutput("map", height = 550)
-        )
-      ),
+      
       layout_columns(
         col_widths = c(4, 4, 4),
         plotOutput("hist_factor1"),
@@ -178,9 +181,27 @@ server <- function(input, output, session) {
   
   # -----------------------------
   # 2.3 nav_panel MAP
-  # -----------------------------  
+  # ----------------------------- 
+  
   # -----------------------------
-  # 2.3.1 VALUE BOX TEXT
+  # 2.3.1 INITIAL LEAFLET MAP
+  # -----------------------------
+  output$map <- renderLeaflet({
+    r1 <- rast(input$var_env)
+    r2 <- rast(input$var_soc)
+    
+    leaflet() %>%
+      setView(lng = 13.4, lat = 52.52, zoom = 11)%>%
+      addTiles() %>%
+      addRasterImage(
+        raster(combined_id_raster(r1,r2)),
+        color= add_colors_to_map(r1, r2),
+        opacity = 0.7)
+  })
+  
+  
+  # -----------------------------
+  # 2.3.2 VALUE BOX TEXT
   # -----------------------------
   
   value_box_text <- c(
@@ -201,9 +222,16 @@ server <- function(input, output, session) {
   
   
   # -----------------------------
-  # 2.3.2 PLOT COLORSCALE
+  # 2.3.3 PLOT COLORSCALE
   # -----------------------------
   source("colormap.R")
+  
+  lab_names = c(
+    "data/no2_2024_aligned.tif"= "NO₂",
+    "data/2_b_pollutant_grid_avg_pm10_2024.tiff"= "PM10",
+    "data/2_c_pollutant_grid_avg_pm2_5_2024.tiff"="PM2.5",
+    "data/laerm.tif"= "Noise pollution"
+  )
   
   output$colormap <- renderPlot({
     r1 <- rast(input$var_env)
@@ -211,24 +239,29 @@ server <- function(input, output, session) {
     
     # Plot erzeugen
     p <- create_colormap(r1, r2)
-    print(p) 
-  })
-  
-  
-   # -----------------------------
-  # 2.3 INITIAL LEAFLET MAP
-  # -----------------------------
-  output$map <- renderLeaflet({
-    r1 <- rast(input$var_env)
-    r2 <- rast(input$var_soc)
+    x_lab <- lab_names[input$var_env]
+    y_lab <- lab_names[input$var_soc]
     
-    leaflet() %>%
-      setView(lng = 13.4, lat = 52.52, zoom = 11)%>%
-      addTiles() %>%
-      addRasterImage(
-        raster(combined_id_raster(r1,r2)),
-        opacity = 0.7)
+    plot<- ggplot(p, aes(df1, df2, fill = color)) +
+      geom_tile() +
+      scale_fill_identity() +
+      labs(
+        x = x_lab,
+        y = y_lab
+      )+
+      theme_minimal()+
+      theme(
+        axis.title.x = element_text(size = 35),
+        axis.title.y = element_text(size = 35),
+        axis.text.x  = element_text(size = 30),
+        axis.text.y  = element_text(size = 30),
+        plot.title   = element_text(size = 30,  hjust = 0)
+      )
+    print(plot) 
   })
+  
+  
+
   
   # -----------------------------
   # 2.4 REACTIVE RASTER OVERLAY

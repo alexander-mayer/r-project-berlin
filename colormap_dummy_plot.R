@@ -1,12 +1,21 @@
 library(ggplot2)
 library(viridis)
-
+library(terra)
 
 #Dummy df
 df <- data.frame(
   df1 = c(1, 2, 4, 1, 5, 3),
   df2 = c(1, 3, 2, 3, 1, 2)
 )
+
+#________________________________
+#Test cats
+no2<- "data/no2_2024_aligned.tif"
+learm<-"data/laerm.tif"
+
+r1 <- rast(no2)
+r2 <- rast(learm)
+#_______________________________
 
 ##evtl müssen mittel, gering o.ä. noch in num. umgewandelt werden
 # Kategorien bestimmen
