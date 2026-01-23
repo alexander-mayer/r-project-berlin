@@ -177,7 +177,7 @@ levels(laerm_raster) <- data.frame(
 
 writeRaster(
   laerm_raster,
-  "data/laerm.tif",
+  "data/R_laerm.tif",
   overwrite = TRUE
 )
 
