@@ -161,13 +161,13 @@ server <- function(input, output, session) {
   # 2.2 nav_panel INFO (Info on datasets)
   # -----------------------------
   env_text <- c(
-    gruen = "Green spaces: amount of greenspaces in %??",
+    gruen = "Green spaces: This indicator is based on the 2020 Green Provision Analysis and aggregates block-level urgency ratings to planning areas using population-weighting and considering only available green space and population size.",
     GESi = "GESI: The Health and Social Index (GESIx) is derived from 20 indicators covering employment, social status and health at the planning area level for Berlin (2022).",
-    laerm = "Noise pollution: Average environmental noise exposure.",
-    NO2 = "Nitrogen dioxide (NO₂): concentration in µg/m³.",
-    PM2_5 = "Fine particulate matter <2.5 µm (PM2.5): ... ",
-    PM10 = "Particulate matter <10 µm (PM10): ...",
-    soz_benachteiligung = "Social disadvantage: measured by the factors..."
+    laerm = "Noise pollution: The noise exposure dataset is based on Berlin’s 2017 Strategic Noise Maps and provides a population-weighted assessment of nighttime traffic noise (22:00–06:00) for planning areas.",
+    NO2 = "Nitrogen dioxide (NO₂): This is the annual mean NO₂ concentration in µg/m³ presented on a 50 × 50 meter grid across the Berlin metropolitan area.",
+    PM2_5 = "Fine particulate matter <2.5 µm (PM2.5): This is the annual mean PM2.5 concentration in µg/m³ presented on a 50 × 50 meter grid across the Berlin metropolitan area.",
+    PM10 = "Particulate matter <10 µm (PM10): This is the annual mean PM10 concentration in µg/m³ presented on a 50 × 50 meter grid across the Berlin metropolitan area.",
+    soz_benachteiligung = "Social disadvantage: This indicator is based on the 2021 results of Berlin’s citywide Monitoring of Social Urban Development (MSS) and assesses the social status and dynamics of planning areas using indices on unemployment, welfare dependency among non-employed persons, and child poverty"
   )
   
   
