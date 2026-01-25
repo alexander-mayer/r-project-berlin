@@ -218,6 +218,8 @@ writeRaster(
 )
 
 #Now we load, correct and reproject our existing rasters
+#TODO: NAs are currently not handled well
+#TODO: Categorise these
 no2 <- rast("data/2_a_pollutant_grid_avg_no2_2024.tiff") %>%
   project(laerm_raster,
           method = "bilinear"
