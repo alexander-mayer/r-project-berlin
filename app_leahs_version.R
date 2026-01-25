@@ -1,15 +1,3 @@
-#Raster wird nicht angezeigt, eventuelle Gründe:
- #1. Koordinatensystem (CRS)
-    #Leaflet erwartet WGS84 / EPSG:4326 oder Web Mercator (EPSG:3857).
-    #Dein Raster liegt in UTM (EPSG:25833).
-    #project = TRUE funktioniert nur, wenn das Raster eine gültige CRS hat und terra richtig projizieren kann. Manche TIFFs haben allerdings keine CRS oder fehlerhafte CRS-Metadaten.
- #2. Extent / Georeferenzierung
-    #Wenn das Raster außerhalb des Karten-Ausschnitts liegt, sieht man es nicht.
-    #Beispiel: Raster in Meterkoordinaten (UTM) vs. Leaflet in Längen-/Breitengraden (Grad).
- #3. Rasterwerte außerhalb von 0–1 / Farbskala fehlt
-    #Leaflet färbt Raster über Farbskalen.
-    #Wenn Werte sehr groß oder NA sind, kann der Layer „unsichtbar“ erscheinen
-
 ############################################################
 ### Shiny application: Environmental & Social Berlin App ###
 ############################################################
@@ -38,7 +26,7 @@ raster_files <- c(
 lab_names = c(
   gruen = "Green spaces",
   GESi = "GESi",
-  laerm = "Noise exposure.",
+  laerm = "Noise exposure",
   NO2 = "NO₂",
   PM2_5 = "PM2.5",
   PM10 = "PM10",
@@ -109,31 +97,26 @@ ui <- page_sidebar(
       layout_columns(
         col_widths = c(3,9),
         value_box(
-          title = "Selected datasets:",
-          value = p(uiOutput("dataset_name")),
+          title = "Spearman correlation coefficient:",
+          value = tagList(
+            uiOutput("spearman_correlation")
+            #uiOutput("dataset_name")
+          ),
           theme = "teal"
         ),
+        
         card(
-          card_header("Color Map"),
+          card_header("Colorscale"),
           card_body(plotOutput("colormap"))
         )
       ),
       
       
       layout_columns(
-        col_widths = c(4, 4, 4),
-        plotOutput("hist_factor1"),
+        col_widths = c(6,6),
         plotOutput("hist_factor2"),
-        plotOutput("scatter")
-      ),
-      
-      card(
-        card_header("Correlation Coefficient Map"),
-        card_body(
-          leafletOutput("correlation_map", height = 550)
-        )
-    )
-      
+        plotOutput("hist_factor1")
+      )
     )
   )
 )
@@ -178,13 +161,13 @@ server <- function(input, output, session) {
   # 2.2 nav_panel INFO (Info on datasets)
   # -----------------------------
   env_text <- c(
-    gruen = "Green spaces: amount of greenspaces in %??",
+    gruen = "Green spaces: This indicator is based on the 2020 Green Provision Analysis and aggregates block-level urgency ratings to planning areas using population-weighting and considering only available green space and population size.",
     GESi = "GESI: The Health and Social Index (GESIx) is derived from 20 indicators covering employment, social status and health at the planning area level for Berlin (2022).",
-    laerm = "Noise pollution: Average environmental noise exposure.",
-    NO2 = "Nitrogen dioxide (NO₂): concentration in µg/m³.",
-    PM2_5 = "Fine particulate matter <2.5 µm (PM2.5): ... ",
-    PM10 = "Particulate matter <10 µm (PM10): ...",
-    soz_benachteiligung = "Social disadvantage: measured by the factors..."
+    laerm = "Noise pollution: The noise exposure dataset is based on Berlin’s 2017 Strategic Noise Maps and provides a population-weighted assessment of nighttime traffic noise (22:00–06:00) for planning areas.",
+    NO2 = "Nitrogen dioxide (NO₂): This is the annual mean NO₂ concentration in µg/m³ presented on a 50 × 50 meter grid across the Berlin metropolitan area.",
+    PM2_5 = "Fine particulate matter <2.5 µm (PM2.5): This is the annual mean PM2.5 concentration in µg/m³ presented on a 50 × 50 meter grid across the Berlin metropolitan area.",
+    PM10 = "Particulate matter <10 µm (PM10): This is the annual mean PM10 concentration in µg/m³ presented on a 50 × 50 meter grid across the Berlin metropolitan area.",
+    soz_benachteiligung = "Social disadvantage: This indicator is based on the 2021 results of Berlin’s citywide Monitoring of Social Urban Development (MSS) and assesses the social status and dynamics of planning areas using indices on unemployment, welfare dependency among non-employed persons, and child poverty"
   )
   
   
@@ -223,20 +206,38 @@ server <- function(input, output, session) {
   value_box_text <- c(
     gruen = "green spaces",
     GESi = "GESi",
-    laerm = "Average environmental noise exposure.",
-    NO2 = "NO2",
+    laerm = "Noise exposure.",
+    NO2 = "NO₂",
     PM2_5 = "PM2.5",
     PM10 = "PM10",
     soz_benachteiligung = "social disadvantage measured by the factors..."
   )
   
-  
-  output$dataset_name <- renderUI({
-    tagList(
-      tags$p(value_box_text[input$var_env]),
-      tags$p(value_box_text[input$var_soc])
-    )
+  output$spearman_correlation <- renderUI({
+    r1 <- rast(raster_files[input$var_env])
+    r2 <- rast(raster_files[input$var_soc])
+    
+    
+    # Extract values and use only cells that are not NA in both rasters
+    env_vals <- values(r1)
+    soc_vals <- values(r2)
+    
+    valid <- !is.na(env_vals) & !is.na(soc_vals)
+    env_vals <- env_vals[valid]
+    soc_vals <- soc_vals[valid]
+    
+    
+    cor<- round(cor(env_vals, soc_vals, method = "spearman"),2)
+    
+    
   })
+  
+ # output$dataset_name <- renderUI({
+  #  tagList(
+   #   tags$p(value_box_text[input$var_env]),
+    #  tags$p(value_box_text[input$var_soc])
+    #)
+  #})
   
   
   # -----------------------------
@@ -271,6 +272,34 @@ server <- function(input, output, session) {
     print(plot) 
   })
   
+  # -----------------------------
+  # 2.3.4 frequency plots
+  # -----------------------------
+  
+  output$hist_factor1 <- renderPlot({
+    r1 <- rast(raster_files[input$var_env])
+    f<-freq(r1)
+    barplot(
+      f$count,
+      names.arg = f$value,
+      xlab = "Category",
+      ylab = "Frequency",
+      main = lab_names[input$var_env]
+    )
+  })
+  
+  
+  output$hist_factor2 <- renderPlot({
+    r1 <- rast(raster_files[input$var_soc])
+    f<-freq(r1)
+    barplot(
+      f$count,
+      names.arg = f$value,
+      xlab = "Category",
+      ylab = "Frequency",
+      main = lab_names[input$var_soc]
+    )
+  })
   
 
   
@@ -296,33 +325,6 @@ server <- function(input, output, session) {
         #position = "bottomright"
       #)
   #})
-  
-  # -----------------------------
-  # 2.6 SCATTERPLOT: Environmental vs Social
-  # -----------------------------
-  output$scatter <- renderPlot({
-    req(env_raster(), soc_raster())
-    
-    # Extract values and use only cells that are not NA in both rasters
-    env_vals <- values(env_raster())
-    soc_vals <- values(soc_raster())
-    
-    valid <- !is.na(env_vals) & !is.na(soc_vals)
-    env_vals <- env_vals[valid]
-    soc_vals <- soc_vals[valid]
-    
-    # Scatterplot
-    df <- data.frame(Environmental = env_vals, Social = soc_vals)
-    ggplot(df, aes(x = Environmental, y = Social)) +
-      geom_point(alpha = 0.5, color = "blue") +
-      geom_smooth(method = "lm", col = "red") +
-      labs(
-        x = "Environmental indicator",
-        y = "Social indicator",
-        title = "Relation between environmental and social indicator"
-      ) +
-      theme_minimal()
-  })
   
 }
 
