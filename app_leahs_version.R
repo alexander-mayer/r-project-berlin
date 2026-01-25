@@ -1,15 +1,3 @@
-#Raster wird nicht angezeigt, eventuelle Gründe:
- #1. Koordinatensystem (CRS)
-    #Leaflet erwartet WGS84 / EPSG:4326 oder Web Mercator (EPSG:3857).
-    #Dein Raster liegt in UTM (EPSG:25833).
-    #project = TRUE funktioniert nur, wenn das Raster eine gültige CRS hat und terra richtig projizieren kann. Manche TIFFs haben allerdings keine CRS oder fehlerhafte CRS-Metadaten.
- #2. Extent / Georeferenzierung
-    #Wenn das Raster außerhalb des Karten-Ausschnitts liegt, sieht man es nicht.
-    #Beispiel: Raster in Meterkoordinaten (UTM) vs. Leaflet in Längen-/Breitengraden (Grad).
- #3. Rasterwerte außerhalb von 0–1 / Farbskala fehlt
-    #Leaflet färbt Raster über Farbskalen.
-    #Wenn Werte sehr groß oder NA sind, kann der Layer „unsichtbar“ erscheinen
-
 ############################################################
 ### Shiny application: Environmental & Social Berlin App ###
 ############################################################
