@@ -61,15 +61,6 @@ ui <- page_sidebar(
         choices = setNames(ids, lab_names[ids])
       )
     ),
-    
-    #card(
-     # card_header("Information"),
-      #p(
-       # "The Health and Social Index (GESIx) is derived from 20 indicators ",
-        #"covering employment, social status and health at the planning area level ",
-        #"for Berlin (2022)."
-      #)
-    #)
   ),
   
   navset_tab(
