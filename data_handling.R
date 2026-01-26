@@ -218,28 +218,19 @@ writeRaster(
 )
 
 #Now we load, correct and reproject our existing rasters
-#TODO: NAs are currently not handled well
 
-#No2 has 5 levels. We want to reclassify and merge the middle 3
+#No2 has 4 levels. The upper most contains only 4 counts
+# Therefore we want to combine the two upper most levels
 rcl1 <- matrix(
-  c(1, 1,
-    2, 2,
-    3, 2,
-    4, 2,
-    5, 3),
-  ncol = 2,
+  c(1, 1, 1,
+    2, 2, 2,
+    3, 3, 3,
+    3.00001, Inf, 3), # everything bigger than 3 gets 3
+  ncol = 3,
   byrow = TRUE
 )
-#PMs have 3 levels, but 3 and 4 are missing
-rcl2 <- matrix(
-  c(1, 1,
-    2, 2,
-    3, 3,
-    4, 3,
-    5, 3),
-  ncol = 2,
-  byrow = TRUE
-)
+
+
 laerm_raster<- rast("data/R_laerm.tif")
 
 
@@ -254,13 +245,13 @@ pm2_5 <- rast("data/2_c_pollutant_grid_avg_pm2_5_2024.tiff") %>%
   project(laerm_raster,
           method = "bilinear", mask = TRUE
   ) %>% mask(laerm_raster)
-pm2_5 <- classify(pm2_5, rcl2)
+
 
 pm10 <- rast("data/2_b_pollutant_grid_avg_pm10_2024.tiff") %>%
   project(laerm_raster,
           method = "bilinear", mask = TRUE
   ) %>% mask(laerm_raster)
-pm10 <- classify(pm10, rcl2)
+
 
 writeRaster(
   no2,
@@ -282,18 +273,4 @@ writeRaster(
   filetype = "GTiff",
   overwrite = TRUE
 )
-plot(no2)
 
-no22 <- project(
-  rast("data/2_a_pollutant_grid_avg_no2_2024.tiff"),
-  laerm_raster,
-  method = "bilinear"
-)
-plot(no22)
-plot(pm10)
-plot(pm2_5)
-plot(no2)
-no22 <- rast("data/2_a_pollutant_grid_avg_no2_2024.tiff") %>%
-  project(laerm_raster,
-          method = "billinear", mask = TRUE
-  ) %>% mask(laerm_raster)
