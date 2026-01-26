@@ -219,20 +219,32 @@ writeRaster(
 
 #Now we load, correct and reproject our existing rasters
 #TODO: NAs are currently not handled well
-#TODO: Categorise these
+
+#No2 has 5 levels. We want to reclassify and merge the middle 3
+rcl <- matrix(
+  c(1, 1,
+    2, 2,
+    3, 2,
+    4, 2,
+    5, 3),
+  ncol = 2,
+  byrow = TRUE
+)
+
 no2 <- rast("data/2_a_pollutant_grid_avg_no2_2024.tiff") %>%
   project(laerm_raster,
-          method = "bilinear"
+          method = "near", mask = TRUE
   ) %>% crop(laerm_raster)
+no2 <- classify(no2, rcl)
 
 pm2_5 <- rast("data/2_c_pollutant_grid_avg_pm2_5_2024.tiff") %>%
   project(laerm_raster,
-          method = "bilinear"
+          method = "near", mask = TRUE
   ) %>% crop(laerm_raster)
 
 pm10 <- rast("data/2_b_pollutant_grid_avg_pm10_2024.tiff") %>%
   project(laerm_raster,
-          method = "bilinear"
+          method = "near", mask = TRUE
   ) %>% crop(laerm_raster)
 
 writeRaster(
