@@ -195,7 +195,7 @@ server <- function(input, output, session) {
       addRasterImage(
         raster(combined_id_raster(r1,r2)),
         color= add_colors_to_map(r1, r2),
-        opacity = 0.7)
+        opacity = 0.8)
   })
   
   

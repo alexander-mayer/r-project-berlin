@@ -240,23 +240,26 @@ rcl2 <- matrix(
   ncol = 2,
   byrow = TRUE
 )
+laerm_raster<- rast("data/R_laerm.tif")
+
+
 
 no2 <- rast("data/2_a_pollutant_grid_avg_no2_2024.tiff") %>%
   project(laerm_raster,
-          method = "near", mask = TRUE
-  ) %>% crop(laerm_raster)
+          method = "bilinear", mask = TRUE
+  ) %>% mask(laerm_raster)
 no2 <- classify(no2, rcl1)
 
 pm2_5 <- rast("data/2_c_pollutant_grid_avg_pm2_5_2024.tiff") %>%
   project(laerm_raster,
-          method = "near", mask = TRUE
-  ) %>% crop(laerm_raster)
+          method = "bilinear", mask = TRUE
+  ) %>% mask(laerm_raster)
 pm2_5 <- classify(pm2_5, rcl2)
 
 pm10 <- rast("data/2_b_pollutant_grid_avg_pm10_2024.tiff") %>%
   project(laerm_raster,
-          method = "near", mask = TRUE
-  ) %>% crop(laerm_raster)
+          method = "bilinear", mask = TRUE
+  ) %>% mask(laerm_raster)
 pm10 <- classify(pm10, rcl2)
 
 writeRaster(
@@ -279,4 +282,18 @@ writeRaster(
   filetype = "GTiff",
   overwrite = TRUE
 )
+plot(no2)
 
+no22 <- project(
+  rast("data/2_a_pollutant_grid_avg_no2_2024.tiff"),
+  laerm_raster,
+  method = "bilinear"
+)
+plot(no22)
+plot(pm10)
+plot(pm2_5)
+plot(no2)
+no22 <- rast("data/2_a_pollutant_grid_avg_no2_2024.tiff") %>%
+  project(laerm_raster,
+          method = "billinear", mask = TRUE
+  ) %>% mask(laerm_raster)
