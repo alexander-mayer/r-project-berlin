@@ -221,11 +221,21 @@ writeRaster(
 #TODO: NAs are currently not handled well
 
 #No2 has 5 levels. We want to reclassify and merge the middle 3
-rcl <- matrix(
+rcl1 <- matrix(
   c(1, 1,
     2, 2,
     3, 2,
     4, 2,
+    5, 3),
+  ncol = 2,
+  byrow = TRUE
+)
+#PMs have 3 levels, but 3 and 4 are missing
+rcl2 <- matrix(
+  c(1, 1,
+    2, 2,
+    3, 3,
+    4, 3,
     5, 3),
   ncol = 2,
   byrow = TRUE
@@ -235,17 +245,19 @@ no2 <- rast("data/2_a_pollutant_grid_avg_no2_2024.tiff") %>%
   project(laerm_raster,
           method = "near", mask = TRUE
   ) %>% crop(laerm_raster)
-no2 <- classify(no2, rcl)
+no2 <- classify(no2, rcl1)
 
 pm2_5 <- rast("data/2_c_pollutant_grid_avg_pm2_5_2024.tiff") %>%
   project(laerm_raster,
           method = "near", mask = TRUE
   ) %>% crop(laerm_raster)
+pm2_5 <- classify(pm2_5, rcl2)
 
 pm10 <- rast("data/2_b_pollutant_grid_avg_pm10_2024.tiff") %>%
   project(laerm_raster,
           method = "near", mask = TRUE
   ) %>% crop(laerm_raster)
+pm10 <- classify(pm10, rcl2)
 
 writeRaster(
   no2,
