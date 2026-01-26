@@ -106,7 +106,7 @@ ui <- page_sidebar(
         ),
         
         card(
-          card_header("Colorscale"),
+          card_header("Color scale"),
           card_body(plotOutput("colormap"))
         )
       ),
