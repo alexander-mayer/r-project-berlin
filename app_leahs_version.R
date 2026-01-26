@@ -45,6 +45,7 @@ ui <- page_sidebar(
     h4("Select factors for comparison"),
     
     card(
+      style = "height: 270px;",
       card_header("Factor 1"),
       selectInput(
         inputId = "var_env",
@@ -54,6 +55,7 @@ ui <- page_sidebar(
     ),
 
     card(
+      style = "height: 270px;",
       card_header("Factor 2"),
       selectInput(
         inputId = "var_soc",
